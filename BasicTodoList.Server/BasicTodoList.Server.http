@@ -1,4 +1,4 @@
-@BasicTodoList.Server_HostAddress = http://localhost:5096
+@BasicTodoList.Server_HostAddress = http://localhost:5096/api
 
 GET {{BasicTodoList.Server_HostAddress}}/task/
 Accept: application/json
@@ -15,11 +15,11 @@ DELETE {{BasicTodoList.Server_HostAddress}}/task/1
 ###
 
 POST {{BasicTodoList.Server_HostAddress}}/task/
+Content-Type: application/json
 
 {
-  "id": 1,
-  "title": "Task 1",
-  "isCompleted": false
+  "title": "Cleaning the house",
+  "isCompleted": true
 }
 
 ###
