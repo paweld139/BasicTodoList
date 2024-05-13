@@ -19,6 +19,11 @@ namespace BasicTodoList.Server.Controllers
         {
             var result = await taskService.Get(id);
 
+            if (result == null)
+            {
+                return NotFound();
+            }
+
             return Ok(result);
         }
 
