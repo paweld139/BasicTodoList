@@ -1,0 +1,22 @@
+[
+  {
+    "Title": "Cleaning the house",
+    "IsCompleted": true
+  },
+  {
+    "Title": "Doing the laundry",
+    "IsCompleted": true
+  },
+  {
+    "Title": "Cooking dinner"
+  },
+  {
+    "Title": "Washing the dishes"
+  },
+  {
+    "Title": "Taking out the trash"
+  },
+  {
+    "Title": "Mowing the lawn"
+  }
+]
