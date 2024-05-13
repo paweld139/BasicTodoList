@@ -13,5 +13,37 @@ namespace BasicTodoList.Server.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var result = await taskService.Get(id);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await taskService.Delete(id);
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post(DAL.Entities.Task task)
+        {
+            await taskService.Create(task);
+
+            return CreatedAtAction(nameof(Get), new { id = task.Id }, task);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Put(DAL.Entities.Task task)
+        {
+            await taskService.Update(task);
+
+            return NoContent();
+        }
     }
 }

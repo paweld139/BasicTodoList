@@ -4,3 +4,22 @@ GET {{BasicTodoList.Server_HostAddress}}/task/
 Accept: application/json
 
 ###
+
+GET {{BasicTodoList.Server_HostAddress}}/task/1
+Accept: application/json
+
+###
+
+DELETE {{BasicTodoList.Server_HostAddress}}/task/1
+
+###
+
+POST {{BasicTodoList.Server_HostAddress}}/task/
+
+{
+  "id": 1,
+  "title": "Task 1",
+  "isCompleted": false
+}
+
+###
