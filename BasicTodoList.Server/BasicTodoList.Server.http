@@ -1,6 +1,6 @@
 @BasicTodoList.Server_HostAddress = http://localhost:5096
 
-GET {{BasicTodoList.Server_HostAddress}}/weatherforecast/
+GET {{BasicTodoList.Server_HostAddress}}/task/
 Accept: application/json
 
 ###
