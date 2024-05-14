@@ -104,28 +104,23 @@ function App() {
 
     return (
         <Container fluid>
-            <Row>
-                <Col>
-                    <h1>Tasks</h1>
-                </Col>
+            <h1>Tasks</h1>
+
+            <Row
+                className="mb-2"
+                xs="auto"
+            >
+                <span>Total tasks: {tasks?.length}</span>
+
+                <span>Completed tasks: {tasks?.filter(task => task.isCompleted).length}</span>
+
+                <span>Pending tasks: {tasks?.filter(task => !task.isCompleted).length}</span>
             </Row>
 
             <Row className="mb-2">
-                <Col md="auto">
-                    Total tasks: {tasks?.length}
-                </Col>
-
-                <Col md="auto">
-                    Completed tasks: {tasks?.filter(task => task.isCompleted).length}
-                </Col>
-
-                <Col md="auto">
-                    Pending tasks: {tasks?.filter(task => !task.isCompleted).length}
-                </Col>
-            </Row>
-
-            <Row className="mb-2">
-                <Col md="auto">
+                <Col
+                    md="6"
+                >
                     <Input
                         type="text"
                         placeholder="Enter a new task"
