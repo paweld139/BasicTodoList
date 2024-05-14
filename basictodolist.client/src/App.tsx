@@ -1,5 +1,7 @@
 import {
+    useCallback,
     useEffect,
+    useMemo,
     useState
 } from 'react';
 
@@ -12,80 +14,83 @@ import {
     Button
 } from 'reactstrap';
 
-interface Task {
-    id: number;
-    title: string;
-    isCompleted: boolean;
-}
+import { Task } from './interfaces';
+
+import {
+    addTask,
+    deleteTask,
+    getTasks,
+    toggleTaskIsCompleted
+} from './requests';
 
 function App() {
     const [tasks, setTasks] = useState<Task[]>();
 
     const [title, setTitle] = useState('');
 
-    useEffect(() => {
-        populateTaskData();
+    const populateTaskData = useCallback(async () => {
+        const tasks = await getTasks();
+
+        setTasks(tasks);
     }, []);
 
-    const contents = tasks === undefined
-        ? <p><em>Loading...</em></p>
-        : <Table
-            bordered
-            dark
-            hover
-            responsive
-            striped
-        >
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Is completed</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {tasks.map(task =>
-                    <tr key={task.id}>
-                        <td>{task.title}</td>
-                        <td>
-                            <Input
-                                type="checkbox"
-                                checked={task.isCompleted}
-                                onChange={async () => {
-                                    await fetch('/api/task', {
-                                        method: 'PUT',
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            ...task,
-                                            isCompleted: !task.isCompleted
-                                        })
-                                    });
+    useEffect(() => {
+        populateTaskData();
+    }, [populateTaskData]);
 
-                                    populateTaskData();
-                                }}
-                            />
-                        </td>
-                        <td>
-                            <Button
-                                onClick={async () => {
-                                    await fetch(`/api/task/${task.id}`, {
-                                        method: 'DELETE'
-                                    });
-
-                                    populateTaskData();
-                                }}
-                                color="danger"
-                                size="sm"
-                            >
-                                Delete
-                            </Button>
-                        </td>
+    const getTable = useCallback(() => {
+        return (
+            <Table
+                bordered
+                dark
+                hover
+                responsive
+                striped
+            >
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Is completed</th>
+                        <th></th>
                     </tr>
-                )}
-            </tbody>
-        </Table>;
+                </thead>
+                <tbody>
+                    {tasks?.map(task =>
+                        <tr key={task.id}>
+                            <td>{task.title}</td>
+                            <td>
+                                <Input
+                                    type="checkbox"
+                                    checked={task.isCompleted}
+                                    onChange={async () => {
+                                        await toggleTaskIsCompleted(task);
+
+                                        populateTaskData();
+                                    }}
+                                />
+                            </td>
+                            <td>
+                                <Button
+                                    onClick={async () => {
+                                        await deleteTask(task);
+
+                                        populateTaskData();
+                                    }}
+                                    color="danger"
+                                    size="sm"
+                                >
+                                    Delete
+                                </Button>
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </Table>);
+    }, [populateTaskData, tasks]);
+
+    const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
+
+    const contents = useMemo(() => !tasks ? getLoading() : getTable(), [getLoading, getTable, tasks]);
 
     return (
         <Container fluid>
@@ -118,15 +123,7 @@ function App() {
                         value={title}
                         onKeyDown={async (event) => {
                             if (event.key === 'Enter') {
-                                await fetch('/api/task', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        title: title
-                                    })
-                                });
+                                await addTask(title);
 
                                 setTitle('');
 
@@ -142,14 +139,6 @@ function App() {
             </Row>
         </Container>
     );
-
-    async function populateTaskData() {
-        const response = await fetch('/api/task');
-
-        const data = await response.json();
-
-        setTasks(data);
-    }
 }
 
 export default App;
