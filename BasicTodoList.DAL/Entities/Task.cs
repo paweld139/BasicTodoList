@@ -9,5 +9,7 @@
         public DateTime? DueDate { get; set; }
 
         public bool IsCompleted { get; set; }
+
+        public string? UserId { get; set; }
     }
 }
