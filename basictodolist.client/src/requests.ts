@@ -1,27 +1,30 @@
 import { Task } from "./interfaces";
 
-export const toggleTaskIsCompleted = (task: Task) =>
+const updateTask = (task: Task) =>
     fetch('/api/task', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            ...task,
-            isCompleted: !task.isCompleted
-        })
+        body: JSON.stringify(task)
+    });
+
+export const toggleTaskIsCompleted = (task: Task) =>
+    updateTask({
+        ...task,
+        isCompleted: !task.isCompleted
     });
 
 export const updateTaskTitle = (task: Task) =>
-    fetch('/api/task', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            ...task,
-            title: task.title
-        })
+    updateTask({
+        ...task,
+        title: task.title
+    });
+
+export const updateTaskDueDate = (task: Task) =>
+    updateTask({
+        ...task,
+        dueDate: task.dueDate ? task.dueDate : null
     });
 
 export const deleteTask = (task: Task) =>

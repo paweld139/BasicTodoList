@@ -20,6 +20,7 @@ import {
     deleteTask,
     getTasks,
     toggleTaskIsCompleted,
+    updateTaskDueDate,
     updateTaskTitle
 } from './requests';
 
@@ -54,6 +55,7 @@ function App() {
                 <thead>
                     <tr>
                         <th>Title</th>
+                        <th>Due date</th>
                         <th className="text-center">Completed</th>
                         <th className="text-center">Actions</th>
                     </tr>
@@ -65,12 +67,12 @@ function App() {
                         >
                             <td
                                 onClick={() => {
-                                    task.isEditing = true;
+                                    task.isEditingTitle = true;
 
                                     setTasks([...tasks]);
                                 }}
                             >
-                                {!task.isEditing ? task.title : (
+                                {!task.isEditingTitle ? task.title : (
                                     <Input
                                         type="text"
                                         onChange={(event) => {
@@ -86,6 +88,37 @@ function App() {
                                         }}
                                         onBlur={async () => {
                                             await updateTaskTitle(task);
+
+                                            populateTaskData();
+                                        }}
+                                        autoFocus
+                                    />
+                                )}
+                            </td>
+                            <td
+                                onClick={() => {
+                                    task.isEditingDueDate = true;
+
+                                    setTasks([...tasks]);
+                                }}
+                                style={{ width: '14rem' }}
+                            >
+                                {!task.isEditingDueDate ? task.dueDate ? new Date(task.dueDate).toLocaleString() : null : (
+                                    <Input
+                                        type="datetime-local"
+                                        onChange={(event) => {
+                                            task.dueDate = event.target.value;
+
+                                            setTasks([...tasks]);
+                                        }}
+                                        value={task.dueDate ?? ''}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                (event.target as HTMLInputElement).blur()
+                                            }
+                                        }}
+                                        onBlur={async () => {
+                                            await updateTaskDueDate(task);
 
                                             populateTaskData();
                                         }}
