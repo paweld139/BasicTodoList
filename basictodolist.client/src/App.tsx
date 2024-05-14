@@ -118,9 +118,7 @@ function App() {
             </Row>
 
             <Row className="mb-2">
-                <Col
-                    md="6"
-                >
+                <Col md="6">
                     <Input
                         type="text"
                         placeholder="Enter a new task"
@@ -142,7 +140,7 @@ function App() {
             <Row>
                 {contents}
             </Row>
-        </Container>
+        </Container >
     );
 }
 
