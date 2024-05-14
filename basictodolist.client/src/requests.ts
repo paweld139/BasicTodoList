@@ -46,5 +46,18 @@ export const addTask = (title: string) =>
 export const getTasks = async () => {
     const response = await fetch('/api/task');
 
+    const status = response.status;
+
+    if (status === 401) {
+        window.location.href = "/Identity/Account/Login";
+
+        return;
+    }
+    else if (status === 403) {
+        window.location.href = "/Identity/Account/AccessDenied";
+
+        return;
+    }
+
     return await response.json();
 }

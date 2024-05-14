@@ -1,10 +1,12 @@
 ﻿using BasicTodoList.BLL.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BasicTodoList.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TaskController(ITaskService taskService) : ControllerBase
     {
         public async Task<IActionResult> Get()

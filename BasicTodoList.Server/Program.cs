@@ -3,7 +3,8 @@ using BasicTodoList.BLL.Contracts;
 using BasicTodoList.BLL.Services;
 using BasicTodoList.DAL;
 using BasicTodoList.DAL.SampleData;
-using BasicTodoList.Server.SerializerContexts;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BasicTodoList.Server
@@ -18,7 +19,9 @@ namespace BasicTodoList.Server
 
             var configuration = builder.Configuration;
 
-            AddServices(services, configuration);
+            var environment = builder.Environment;
+
+            AddServices(services, configuration, environment);
 
             var app = builder.Build();
 
@@ -27,6 +30,8 @@ namespace BasicTodoList.Server
             AddMiddlewares(app);
 
             app.MapControllers();
+
+            app.MapRazorPages();
 
             app.MapFallbackToFile("/index.html");
 
@@ -41,6 +46,10 @@ namespace BasicTodoList.Server
 
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
+
+                app.UseMigrationsEndPoint();
+
                 app.UseSwagger();
 
                 app.UseSwaggerUI();
@@ -48,10 +57,12 @@ namespace BasicTodoList.Server
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
         }
 
-        private static void AddServices(IServiceCollection services, ConfigurationManager configuration)
+        private static void AddServices(IServiceCollection services, ConfigurationManager configuration, IWebHostEnvironment webHostEnvironment)
         {
             services.AddControllers();
 
@@ -59,18 +70,67 @@ namespace BasicTodoList.Server
 
             services.AddSwaggerGen();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            ConfigureDatabase(services, configuration, webHostEnvironment);
 
-            services.AddDbContext<BasicTodoListContext>(o => o.UseSqlServer(connectionString, o => o.MigrationsAssembly("BasicTodoList.DAL")));
-
-            services.ConfigureHttpJsonOptions(options =>
-            {
-                options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
-            });
+            ConfigureIdentity(services);
 
             services.AddScoped<ITaskService, TaskService>();
 
             services.AddScoped<BasicTodoListSeeder>();
+        }
+
+        private static void ConfigureIdentity(IServiceCollection services)
+        {
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<BasicTodoListContext>();
+
+            services.AddDataProtection()
+                .PersistKeysToDbContext<BasicTodoListContext>();
+
+            services.AddAuthorization();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    if (!context.Request.Path.StartsWithSegments("/Identity"))
+                    {
+                        context.Response.StatusCode = 403;
+                    }
+                    else
+                    {
+                        context.Response.Redirect(options.AccessDeniedPath);
+                    }
+
+                    return Task.CompletedTask;
+                };
+
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    if (!context.Request.Path.StartsWithSegments("/Identity"))
+                    {
+                        context.Response.StatusCode = 401;
+                    }
+                    else
+                    {
+                        context.Response.Redirect(options.LoginPath);
+                    }
+
+                    return Task.CompletedTask;
+                };
+            });
+        }
+
+        private static void ConfigureDatabase(IServiceCollection services, ConfigurationManager configuration, IWebHostEnvironment webHostEnvironment)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            services.AddDbContext<BasicTodoListContext>(o => o.UseSqlServer(connectionString, o => o.MigrationsAssembly("BasicTodoList.DAL")));
+
+            var isDevelopment = webHostEnvironment.IsDevelopment();
+
+            if (isDevelopment)
+                services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         private static void SeedDb(IHost host)
