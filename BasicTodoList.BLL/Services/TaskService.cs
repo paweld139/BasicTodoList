@@ -1,19 +1,37 @@
 ﻿using BasicTodoList.BLL.Contracts;
 using BasicTodoList.DAL;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BasicTodoList.BLL.Services
 {
-    public class TaskService(BasicTodoListContext basicTodoListContext) : ITaskService
+    public class TaskService(BasicTodoListContext basicTodoListContext, IHttpContextAccessor httpContextAccessor, UserManager<IdentityUser> userManager) : ITaskService
     {
-        public Task<List<DAL.Entities.Task>> Get() => basicTodoListContext.Tasks.ToListAsync();
+        private ClaimsPrincipal User => httpContextAccessor.HttpContext.User;
 
-        public Task<DAL.Entities.Task?> Get(int id) => basicTodoListContext.Tasks.SingleOrDefaultAsync(t => t.Id == id);
+        private string? UserId => userManager.GetUserId(User);
 
-        public Task Delete(int id) => basicTodoListContext.Tasks.Where(t => t.Id == id).ExecuteDeleteAsync();
+        public Task<List<DAL.Entities.Task>> Get() => basicTodoListContext.Tasks
+            .Where(t => t.UserId == UserId)
+            .ToListAsync();
+
+        public Task<DAL.Entities.Task?> Get(int id) => basicTodoListContext.Tasks
+            .Where(t => t.UserId == UserId)
+            .SingleOrDefaultAsync(t => t.Id == id);
+
+        public Task Delete(int id) => basicTodoListContext.Tasks
+            .Where(t =>
+                t.Id == id &&
+                t.UserId == UserId
+            )
+            .ExecuteDeleteAsync();
 
         public Task Create(DAL.Entities.Task task)
         {
+            task.UserId = UserId;
+
             basicTodoListContext.Tasks.Add(task);
 
             return basicTodoListContext.SaveChangesAsync();
@@ -21,6 +39,8 @@ namespace BasicTodoList.BLL.Services
 
         public Task Update(DAL.Entities.Task task)
         {
+            task.UserId = UserId;
+
             basicTodoListContext.Tasks.Update(task);
 
             return basicTodoListContext.SaveChangesAsync();

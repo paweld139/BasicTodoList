@@ -70,6 +70,8 @@ namespace BasicTodoList.Server
 
             services.AddSwaggerGen();
 
+            services.AddHttpContextAccessor();
+
             ConfigureDatabase(services, configuration, webHostEnvironment);
 
             ConfigureIdentity(services);
