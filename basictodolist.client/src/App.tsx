@@ -55,7 +55,7 @@ function App() {
                     <tr>
                         <th>Title</th>
                         <th className="text-center">Completed</th>
-                        <th>Actions</th>
+                        <th className="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
