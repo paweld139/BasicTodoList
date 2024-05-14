@@ -140,7 +140,7 @@ function App() {
             <Row>
                 {contents}
             </Row>
-        </Container >
+        </Container>
     );
 }
 
