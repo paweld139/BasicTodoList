@@ -12,6 +12,18 @@ export const toggleTaskIsCompleted = (task: Task) =>
         })
     });
 
+export const updateTaskTitle = (task: Task) =>
+    fetch('/api/task', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            ...task,
+            title: task.title
+        })
+    });
+
 export const deleteTask = (task: Task) =>
     fetch(`/api/task/${task.id}`, {
         method: 'DELETE'

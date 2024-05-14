@@ -10,8 +10,7 @@ import {
     Container,
     Row,
     Input,
-    Col,
-    Button
+    Col
 } from 'reactstrap';
 
 import { Task } from './interfaces';
@@ -20,7 +19,8 @@ import {
     addTask,
     deleteTask,
     getTasks,
-    toggleTaskIsCompleted
+    toggleTaskIsCompleted,
+    updateTaskTitle
 } from './requests';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -60,8 +60,38 @@ function App() {
                 </thead>
                 <tbody>
                     {tasks?.map(task =>
-                        <tr key={task.id}>
-                            <td>{task.title}</td>
+                        <tr
+                            key={task.id}
+                            onClick={() => {
+                                task.isEditing = true;
+
+                                setTasks([...tasks]);
+                            }}
+                        >
+                            <td>
+                                {!task.isEditing ? task.title : (
+                                    <Input
+                                        type="text"
+                                        onChange={(event) => {
+                                            task.title = event.target.value;
+
+                                            setTasks([...tasks]);
+                                        }}
+                                        value={task.title}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                (event.target as HTMLInputElement).blur()
+                                            }
+                                        }}
+                                        onBlur={async () => {
+                                            await updateTaskTitle(task);
+
+                                            populateTaskData();
+                                        }}
+                                        autoFocus
+                                    />
+                                )}
+                            </td>
                             <td
                                 style={{ width: '8rem' }}
                                 className="text-center"
