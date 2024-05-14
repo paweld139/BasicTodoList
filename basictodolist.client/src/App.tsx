@@ -23,6 +23,10 @@ import {
     toggleTaskIsCompleted
 } from './requests';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+
 function App() {
     const [tasks, setTasks] = useState<Task[]>();
 
@@ -50,15 +54,18 @@ function App() {
                 <thead>
                     <tr>
                         <th>Title</th>
-                        <th>Is completed</th>
-                        <th></th>
+                        <th className="text-center">Completed</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {tasks?.map(task =>
                         <tr key={task.id}>
                             <td>{task.title}</td>
-                            <td>
+                            <td
+                                style={{ width: '8rem' }}
+                                className="text-center"
+                            >
                                 <Input
                                     type="checkbox"
                                     checked={task.isCompleted}
@@ -69,18 +76,21 @@ function App() {
                                     }}
                                 />
                             </td>
-                            <td>
-                                <Button
+                            <td
+                                style={{ width: '5rem' }}
+                                className="text-center"
+                            >
+                                <FontAwesomeIcon
+                                    icon={faTrashAlt}
                                     onClick={async () => {
                                         await deleteTask(task);
 
                                         populateTaskData();
                                     }}
-                                    color="danger"
-                                    size="sm"
-                                >
-                                    Delete
-                                </Button>
+                                    className="text-danger"
+                                    role="button"
+                                    title="Delete task"
+                                />
                             </td>
                         </tr>
                     )}
