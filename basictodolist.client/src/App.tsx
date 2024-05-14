@@ -137,9 +137,7 @@ function App() {
                 </Col>
             </Row>
 
-            <Row>
-                {contents}
-            </Row>
+            {contents}
         </Container>
     );
 }
