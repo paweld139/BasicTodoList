@@ -62,13 +62,14 @@ function App() {
                     {tasks?.map(task =>
                         <tr
                             key={task.id}
-                            onClick={() => {
-                                task.isEditing = true;
-
-                                setTasks([...tasks]);
-                            }}
                         >
-                            <td>
+                            <td
+                                onClick={() => {
+                                    task.isEditing = true;
+
+                                    setTasks([...tasks]);
+                                }}
+                            >
                                 {!task.isEditing ? task.title : (
                                     <Input
                                         type="text"
