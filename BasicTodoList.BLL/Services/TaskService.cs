@@ -22,12 +22,36 @@ namespace BasicTodoList.BLL.Services
             .Where(t => t.UserId == UserId)
             .SingleOrDefaultAsync(t => t.Id == id);
 
-        public Task Delete(int id) => basicTodoListContext.Tasks
-            .Where(t =>
-                t.Id == id &&
-                t.UserId == UserId
-            )
-            .ExecuteDeleteAsync();
+        public async Task Delete(int id)
+        {
+            var task = await basicTodoListContext.Tasks
+                .Where(t =>
+                    t.Id == id &&
+                    t.UserId == UserId
+                )
+                .SingleOrDefaultAsync();
+
+            if (task == null)
+            {
+                return;
+            }
+
+            await basicTodoListContext.Tasks
+                .Where(t =>
+                    t.UserId == UserId &&
+                    t.OrderIndex > task.OrderIndex
+                )
+                .ForEachAsync(t => t.OrderIndex--);
+
+            await basicTodoListContext.Tasks
+                .Where(t =>
+                    t.Id == id &&
+                    t.UserId == UserId
+                )
+                .ExecuteDeleteAsync();
+
+            await basicTodoListContext.SaveChangesAsync();
+        }
 
         public async Task Create(DAL.Entities.Task task)
         {
