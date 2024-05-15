@@ -7,3 +7,9 @@ export interface Task {
     isEditingTitle: boolean;
     isEditingDueDate: boolean;
 }
+
+export interface TableColumn {
+    label: string;
+    key: string;
+    centered?: boolean;
+}
