@@ -27,6 +27,24 @@ export const updateTaskDueDate = (task: Task) =>
         dueDate: task.dueDate ? task.dueDate : null
     });
 
+export const moveTaskUp = (task: Task) =>
+    fetch(`/api/task/moveUp`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(task)
+    });
+
+export const moveTaskDown = (task: Task) =>
+    fetch(`/api/task/moveDown`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(task)
+    });
+
 export const deleteTask = (task: Task) =>
     fetch(`/api/task/${task.id}`, {
         method: 'DELETE'

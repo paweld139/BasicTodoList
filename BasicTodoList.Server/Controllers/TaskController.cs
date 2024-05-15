@@ -52,5 +52,21 @@ namespace BasicTodoList.Server.Controllers
 
             return NoContent();
         }
+
+        [HttpPut("moveUp")]
+        public async Task<IActionResult> MoveUp(DAL.Entities.Task task)
+        {
+            await taskService.MoveUp(task);
+
+            return NoContent();
+        }
+
+        [HttpPut("moveDown")]
+        public async Task<IActionResult> MoveDown(DAL.Entities.Task task)
+        {
+            await taskService.MoveDown(task);
+
+            return NoContent();
+        }
     }
 }

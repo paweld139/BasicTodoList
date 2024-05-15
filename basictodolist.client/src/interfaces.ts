@@ -3,6 +3,7 @@ export interface Task {
     title: string;
     dueDate: string | null;
     isCompleted: boolean;
+    orderIndex: number;
     isEditingTitle: boolean;
     isEditingDueDate: boolean;
 }

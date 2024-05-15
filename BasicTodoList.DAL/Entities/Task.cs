@@ -11,5 +11,7 @@
         public bool IsCompleted { get; set; }
 
         public string? UserId { get; set; }
+
+        public int OrderIndex { get; set; }
     }
 }

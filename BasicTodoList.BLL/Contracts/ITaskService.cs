@@ -6,6 +6,8 @@
         Task Delete(int id);
         Task<List<DAL.Entities.Task>> Get();
         Task<DAL.Entities.Task?> Get(int id);
+        Task MoveDown(DAL.Entities.Task task);
+        Task MoveUp(DAL.Entities.Task task);
         Task Update(DAL.Entities.Task task);
     }
 }

@@ -50,7 +50,14 @@ namespace BasicTodoList.DAL.SampleData
 
             var user = await userManager.Users.FirstAsync();
 
-            tasks.ForEach(t => t.UserId = user.Id);
+            var orderIndex = 0;
+
+            tasks.ForEach(t =>
+            {
+                t.UserId = user.Id;
+
+                t.OrderIndex = orderIndex++;
+            });
 
             basicTodoListContext.Tasks.AddRange(tasks);
 

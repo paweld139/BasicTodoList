@@ -16,7 +16,8 @@ import {
     AccordionHeader,
     AccordionItem,
     Label,
-    FormGroup
+    FormGroup,
+    Button
 } from 'reactstrap';
 
 import { Task } from './interfaces';
@@ -27,12 +28,18 @@ import {
     getTasks,
     toggleTaskIsCompleted,
     updateTaskDueDate,
-    updateTaskTitle
+    updateTaskTitle,
+    moveTaskUp,
+    moveTaskDown
 } from './requests';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import {
+    faTrashAlt,
+    faArrowAltCircleUp,
+    faArrowAltCircleDown
+} from '@fortawesome/free-regular-svg-icons';
 
 function App() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -170,21 +177,59 @@ function App() {
                                     }}
                                 />
                             </td>
-                            <td
-                                style={{ width: '5rem' }}
-                                className="text-center"
-                            >
-                                <FontAwesomeIcon
-                                    icon={faTrashAlt}
-                                    onClick={async () => {
-                                        await deleteTask(task);
+                            <td style={{ width: '5rem' }}>
+                                <div className="d-flex gap-2">
+                                    <Button
+                                        color="link"
+                                        title="Delete task"
+                                        className="p-0"
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faTrashAlt}
+                                            onClick={async () => {
+                                                await deleteTask(task);
 
-                                        populateTaskData();
-                                    }}
-                                    className="text-danger"
-                                    role="button"
-                                    title="Delete task"
-                                />
+                                                populateTaskData();
+                                            }}
+                                            className="text-danger"
+                                        />
+                                    </Button>
+
+                                    <Button
+                                        color="link"
+                                        title="Move task up"
+                                        className="p-0"
+                                        disabled={task.orderIndex === 0}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faArrowAltCircleUp}
+                                            onClick={async () => {
+
+                                                await moveTaskUp(task);
+
+                                                populateTaskData();
+                                            }}
+                                            className="text-primary"
+                                        />
+                                    </Button>
+
+                                    <Button
+                                        color="link"
+                                        title="Move task down"
+                                        className="p-0"
+                                        disabled={task.orderIndex === tasks.length - 1}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faArrowAltCircleDown}
+                                            onClick={async () => {
+                                                await moveTaskDown(task);
+
+                                                populateTaskData();
+                                            }}
+                                            className="text-primary"
+                                        />
+                                    </Button>
+                                </div>
                             </td>
                         </tr>
                     )}
