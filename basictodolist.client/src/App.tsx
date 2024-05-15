@@ -241,37 +241,43 @@ function App() {
 
                         <AccordionBody accordionId="1">
                             <Container fluid>
-                                <FormGroup row>
+                                <Row md="3" sm="2" xs="1">
                                     <Col>
-                                        <Label for="title">Title</Label>
-                                        <Input
-                                            type="search"
-                                            onChange={(event) => setTitleSearch(event.target.value)}
-                                            value={titleSearch}
-                                            id="title"
-                                        />
+                                        <FormGroup>
+                                            <Label for="title">Title</Label>
+                                            <Input
+                                                type="search"
+                                                onChange={(event) => setTitleSearch(event.target.value)}
+                                                value={titleSearch}
+                                                id="title"
+                                            />
+                                        </FormGroup>
                                     </Col>
 
                                     <Col>
-                                        <Label for="dueDateFrom">Due date from</Label>
-                                        <Input
-                                            type="datetime-local"
-                                            onChange={(event) => setDueDateFrom(event.target.value)}
-                                            value={dueDateFrom}
-                                            id="dueDateFrom"
-                                        />
+                                        <FormGroup>
+                                            <Label for="dueDateFrom">Due date from</Label>
+                                            <Input
+                                                type="datetime-local"
+                                                onChange={(event) => setDueDateFrom(event.target.value)}
+                                                value={dueDateFrom}
+                                                id="dueDateFrom"
+                                            />
+                                        </FormGroup>
                                     </Col>
 
                                     <Col>
-                                        <Label for="dueDateTo">Due date to</Label>
-                                        <Input
-                                            type="datetime-local"
-                                            onChange={(event) => setDueDateTo(event.target.value)}
-                                            value={dueDateTo}
-                                            id="dueDateTo"
-                                        />
+                                        <FormGroup>
+                                            <Label for="dueDateTo">Due date to</Label>
+                                            <Input
+                                                type="datetime-local"
+                                                onChange={(event) => setDueDateTo(event.target.value)}
+                                                value={dueDateTo}
+                                                id="dueDateTo"
+                                            />
+                                        </FormGroup>
                                     </Col>
-                                </FormGroup>
+                                </Row>
                             </Container>
                         </AccordionBody>
                     </AccordionItem>
