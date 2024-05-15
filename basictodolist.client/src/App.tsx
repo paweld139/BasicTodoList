@@ -38,8 +38,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faTrashAlt,
     faArrowAltCircleUp,
-    faArrowAltCircleDown
-} from '@fortawesome/free-regular-svg-icons';
+    faArrowAltCircleDown,
+    faChevronUp,
+    faChevronDown
+} from '@fortawesome/free-solid-svg-icons';
 
 function App() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -49,6 +51,47 @@ function App() {
     const [dueDateFrom, setDueDateFrom] = useState<string>();
 
     const [dueDateTo, setDueDateTo] = useState<string>();
+
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+
+    const [sortField, setSortField] = useState<keyof Task | null>(null);
+
+    const sortTasks = useCallback((field: keyof Task) => {
+        const sortOrderToSet = sortOrder === null || field !== sortField ? 'asc' : sortOrder === 'asc' ? 'desc' : null;
+
+        setSortOrder(sortOrderToSet);
+
+        if (sortOrderToSet === null) {
+            setTasks([...tasks].sort((a, b) => a.orderIndex - b.orderIndex));
+
+            return;
+        }
+        else {
+            setSortField(field);
+        }
+
+        setTasks([...tasks].sort((a, b) => {
+            if (a[field] === b[field]) {
+                return 0;
+            }
+
+            if (a[field] === null) {
+                return 1;
+            }
+
+            if (b[field] === null) {
+                return -1;
+            }
+
+            if (sortOrderToSet === 'asc') {
+                return a[field]! > b[field]! ? 1 : -1;
+            } else {
+                return a[field]! < b[field]! ? 1 : -1;
+            }
+        }));
+    }, [sortField, sortOrder, tasks]);
+
+    const getPostfix = useCallback((field: string) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
 
     const filteredTasks = useMemo(() => {
         return tasks?.filter(task =>
@@ -91,9 +134,9 @@ function App() {
             >
                 <thead>
                     <tr>
-                        <th>Title</th>
-                        <th>Due date</th>
-                        <th className="text-center">Completed</th>
+                        <th onClick={() => sortTasks('title')}>Title {getPostfix('title')}</th>
+                        <th onClick={() => sortTasks('dueDate')}>Due date {getPostfix('dueDate')}</th>
+                        <th onClick={() => sortTasks('isCompleted')} className="text-center">Completed {getPostfix('isCompleted')}</th>
                         <th className="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -235,7 +278,7 @@ function App() {
                     )}
                 </tbody>
             </Table>);
-    }, [filteredTasks, populateTaskData, tasks]);
+    }, [filteredTasks, populateTaskData, sortTasks, tasks]);
 
     const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
 
