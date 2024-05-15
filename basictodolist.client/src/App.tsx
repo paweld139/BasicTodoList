@@ -11,10 +11,6 @@ import {
     Row,
     Input,
     Col,
-    Accordion,
-    AccordionBody,
-    AccordionHeader,
-    AccordionItem,
     Label,
     FormGroup,
     Button
