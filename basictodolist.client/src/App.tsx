@@ -278,7 +278,7 @@ function App() {
                     )}
                 </tbody>
             </Table>);
-    }, [filteredTasks, populateTaskData, sortTasks, tasks]);
+    }, [filteredTasks, getPostfix, populateTaskData, sortTasks, tasks]);
 
     const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
 
