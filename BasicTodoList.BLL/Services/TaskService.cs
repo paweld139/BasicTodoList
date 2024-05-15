@@ -36,7 +36,6 @@ namespace BasicTodoList.BLL.Services
             task.OrderIndex = await basicTodoListContext.Tasks
                 .Where(t => t.UserId == UserId)
                 .Select(t => t.OrderIndex)
-                .DefaultIfEmpty(0)
                 .MaxAsync() + 1;
 
             basicTodoListContext.Tasks.Add(task);
