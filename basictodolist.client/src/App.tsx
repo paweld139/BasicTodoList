@@ -10,7 +10,13 @@ import {
     Container,
     Row,
     Input,
-    Col
+    Col,
+    Accordion,
+    AccordionBody,
+    AccordionHeader,
+    AccordionItem,
+    Label,
+    FormGroup
 } from 'reactstrap';
 
 import { Task } from './interfaces';
@@ -29,9 +35,33 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 
 function App() {
-    const [tasks, setTasks] = useState<Task[]>();
+    const [tasks, setTasks] = useState<Task[]>([]);
+
+    const [titleSearch, setTitleSearch] = useState('');
+
+    const [dueDateFrom, setDueDateFrom] = useState<string>();
+
+    const [dueDateTo, setDueDateTo] = useState<string>();
+
+    const filteredTasks = useMemo(() => {
+        return tasks?.filter(task =>
+            task.title.toLowerCase().includes(titleSearch.toLowerCase()) &&
+            (!dueDateFrom || new Date(task.dueDate!) >= new Date(dueDateFrom)) &&
+            (!dueDateTo || new Date(task.dueDate!) <= new Date(dueDateTo))
+        );
+    }, [dueDateFrom, dueDateTo, tasks, titleSearch]);
 
     const [title, setTitle] = useState('');
+
+    const [open, setOpen] = useState('1');
+
+    const toggle = (id: string) => {
+        if (open === id) {
+            setOpen('');
+        } else {
+            setOpen(id);
+        }
+    };
 
     const populateTaskData = useCallback(async () => {
         const tasks = await getTasks();
@@ -61,7 +91,7 @@ function App() {
                     </tr>
                 </thead>
                 <tbody>
-                    {tasks?.map(task =>
+                    {filteredTasks?.map(task =>
                         <tr
                             key={task.id}
                         >
@@ -160,7 +190,7 @@ function App() {
                     )}
                 </tbody>
             </Table>);
-    }, [populateTaskData, tasks]);
+    }, [filteredTasks, populateTaskData, tasks]);
 
     const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
 
@@ -199,6 +229,53 @@ function App() {
                         }}
                     />
                 </Col>
+            </Row>
+
+            <Row className="mb-2">
+                <Accordion
+                    open={open}
+                    toggle={toggle}
+                >
+                    <AccordionItem>
+                        <AccordionHeader targetId="1">Filters</AccordionHeader>
+
+                        <AccordionBody accordionId="1">
+                            <Container fluid>
+                                <FormGroup row>
+                                    <Col>
+                                        <Label for="title">Title</Label>
+                                        <Input
+                                            type="search"
+                                            onChange={(event) => setTitleSearch(event.target.value)}
+                                            value={titleSearch}
+                                            id="title"
+                                        />
+                                    </Col>
+
+                                    <Col>
+                                        <Label for="dueDateFrom">Due date from</Label>
+                                        <Input
+                                            type="datetime-local"
+                                            onChange={(event) => setDueDateFrom(event.target.value)}
+                                            value={dueDateFrom}
+                                            id="dueDateFrom"
+                                        />
+                                    </Col>
+
+                                    <Col>
+                                        <Label for="dueDateTo">Due date to</Label>
+                                        <Input
+                                            type="datetime-local"
+                                            onChange={(event) => setDueDateTo(event.target.value)}
+                                            value={dueDateTo}
+                                            id="dueDateTo"
+                                        />
+                                    </Col>
+                                </FormGroup>
+                            </Container>
+                        </AccordionBody>
+                    </AccordionItem>
+                </Accordion>
             </Row>
 
             {contents}
