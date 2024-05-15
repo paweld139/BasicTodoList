@@ -42,6 +42,7 @@ import {
     faChevronUp,
     faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
+import AppAccordion from './components/AppAccordion';
 
 function App() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -102,16 +103,6 @@ function App() {
     }, [dueDateFrom, dueDateTo, tasks, titleSearch]);
 
     const [title, setTitle] = useState('');
-
-    const [open, setOpen] = useState('1');
-
-    const toggle = (id: string) => {
-        if (open === id) {
-            setOpen('');
-        } else {
-            setOpen(id);
-        }
-    };
 
     const populateTaskData = useCallback(async () => {
         const tasks = await getTasks();
@@ -320,50 +311,41 @@ function App() {
             </Row>
 
             <Row className="mb-2">
-                <Accordion
-                    open={open}
-                    toggle={toggle}
-                >
-                    <AccordionItem>
-                        <AccordionHeader targetId="1">Filters</AccordionHeader>
+                <AppAccordion header="Filters">
+                    <Container fluid>
+                        <Row md="3" sm="2" xs="1">
+                            <FormGroup>
+                                <Label for="title">Title</Label>
+                                <Input
+                                    type="search"
+                                    onChange={(event) => setTitleSearch(event.target.value)}
+                                    value={titleSearch}
+                                    id="title"
+                                />
+                            </FormGroup>
 
-                        <AccordionBody accordionId="1">
-                            <Container fluid>
-                                <Row md="3" sm="2" xs="1">
-                                    <FormGroup>
-                                        <Label for="title">Title</Label>
-                                        <Input
-                                            type="search"
-                                            onChange={(event) => setTitleSearch(event.target.value)}
-                                            value={titleSearch}
-                                            id="title"
-                                        />
-                                    </FormGroup>
+                            <FormGroup>
+                                <Label for="dueDateFrom">Due date from</Label>
+                                <Input
+                                    type="datetime-local"
+                                    onChange={(event) => setDueDateFrom(event.target.value)}
+                                    value={dueDateFrom}
+                                    id="dueDateFrom"
+                                />
+                            </FormGroup>
 
-                                    <FormGroup>
-                                        <Label for="dueDateFrom">Due date from</Label>
-                                        <Input
-                                            type="datetime-local"
-                                            onChange={(event) => setDueDateFrom(event.target.value)}
-                                            value={dueDateFrom}
-                                            id="dueDateFrom"
-                                        />
-                                    </FormGroup>
-
-                                    <FormGroup>
-                                        <Label for="dueDateTo">Due date to</Label>
-                                        <Input
-                                            type="datetime-local"
-                                            onChange={(event) => setDueDateTo(event.target.value)}
-                                            value={dueDateTo}
-                                            id="dueDateTo"
-                                        />
-                                    </FormGroup>
-                                </Row>
-                            </Container>
-                        </AccordionBody>
-                    </AccordionItem>
-                </Accordion>
+                            <FormGroup>
+                                <Label for="dueDateTo">Due date to</Label>
+                                <Input
+                                    type="datetime-local"
+                                    onChange={(event) => setDueDateTo(event.target.value)}
+                                    value={dueDateTo}
+                                    id="dueDateTo"
+                                />
+                            </FormGroup>
+                        </Row>
+                    </Container>
+                </AppAccordion>
             </Row>
 
             {contents}
