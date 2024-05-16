@@ -1,9 +1,3 @@
-import {
-    faArrowAltCircleDown,
-    faArrowAltCircleUp,
-    faTrashAlt
-} from "@fortawesome/free-solid-svg-icons";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {
@@ -12,19 +6,27 @@ import {
     Table
 } from "reactstrap";
 
-import { TableColumn } from "../interfaces";
+import {
+    Entity,
+    TableColumn,
+    TableRowAction
+} from "../interfaces";
 
-interface Props {
-    columns: TableColumn[];
-    sort: (key: string) => void;
-    getPostfix: (key: string) => string;
+interface Props<T extends Entity> {
+    columns: TableColumn<T>[];
+    sort: (key: keyof T) => void;
+    getPostfix: (key: keyof T) => JSX.Element | null;
+    filteredData: T[];
+    rowActions: TableRowAction<T>[];
 }
 
-const AppTable = ({
+const AppTable = <T extends Entity>({
     columns,
     sort,
-    getPostfix
-}: Props) => {
+    getPostfix,
+    filteredData,
+    rowActions
+}: Props<T>) => {
     return (
         <Table
             bordered
@@ -37,7 +39,7 @@ const AppTable = ({
                 <tr>
                     {columns.map(column =>
                         <th
-                            key={column.key}
+                            key={String(column.key)}
                             onClick={() => sort(column.key)}
                             className={column.centered ? 'text-center' : ''}
                         >
@@ -48,137 +50,49 @@ const AppTable = ({
                 </tr>
             </thead>
             <tbody>
-                {filteredTasks?.map(task =>
+                {filteredData?.map(data =>
                     <tr
-                        key={task.id}
+                        key={data.id}
                     >
-                        <td
-                            onClick={() => {
-                                task.isEditingTitle = true;
-
-                                setTasks([...tasks]);
-                            }}
-                        >
-                            {!task.isEditingTitle ? task.title : (
-                                <Input
-                                    type="text"
-                                    onChange={(event) => {
-                                        task.title = event.target.value;
-
-                                        setTasks([...tasks]);
-                                    }}
-                                    value={task.title}
-                                    onKeyDown={(event) => {
-                                        if (event.key === 'Enter') {
-                                            (event.target as HTMLInputElement).blur()
-                                        }
-                                    }}
-                                    onBlur={async () => {
-                                        await updateTaskTitle(task);
-
-                                        populateTaskData();
-                                    }}
-                                    autoFocus
-                                />
-                            )}
-                        </td>
-                        <td
-                            onClick={() => {
-                                task.isEditingDueDate = true;
-
-                                setTasks([...tasks]);
-                            }}
-                            style={{ width: '14rem' }}
-                        >
-                            {!task.isEditingDueDate ? task.dueDate ? new Date(task.dueDate).toLocaleString() : null : (
-                                <Input
-                                    type="datetime-local"
-                                    onChange={(event) => {
-                                        task.dueDate = event.target.value;
-
-                                        setTasks([...tasks]);
-                                    }}
-                                    value={task.dueDate ?? ''}
-                                    onKeyDown={(event) => {
-                                        if (event.key === 'Enter') {
-                                            (event.target as HTMLInputElement).blur()
-                                        }
-                                    }}
-                                    onBlur={async () => {
-                                        await updateTaskDueDate(task);
-
-                                        populateTaskData();
-                                    }}
-                                    autoFocus
-                                />
-                            )}
-                        </td>
-                        <td
-                            style={{ width: '8rem' }}
-                            className="text-center"
-                        >
-                            <Input
-                                type="checkbox"
-                                checked={task.isCompleted}
-                                onChange={async () => {
-                                    await toggleTaskIsCompleted(task);
-
-                                    populateTaskData();
-                                }}
-                            />
-                        </td>
+                        {columns.map(column =>
+                            <td
+                                onClick={!column.onClick ? undefined : () => column.onClick!(data)}
+                                style={{ width: column.width }}
+                                className={column.centered ? 'text-center' : ''}
+                            >
+                                {!column.canEdit(data) ? data[column.key] : (
+                                    <Input
+                                        type={column.type}
+                                        checked={column.type === 'checkbox' ? Boolean(data[column.key]) : undefined}
+                                        onChange={e => column.onChange(e, data)}
+                                        value={column.type === 'checkbox' ? undefined : String(data[column.key])}
+                                        onKeyDown={!column.onBlur ? undefined : (event) => {
+                                            if (event.key === 'Enter') {
+                                                column.onBlur!(data);
+                                            }
+                                        }}
+                                        onBlur={!column.onBlur ? undefined : () => column.onBlur!(data)}
+                                        autoFocus={column.type !== 'checkbox'}
+                                    />
+                                )}
+                            </td>
+                        )}
                         <td style={{ width: '5rem' }}>
                             <div className="d-flex gap-2">
-                                <Button
-                                    color="link"
-                                    title="Delete task"
-                                    className="p-0"
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faTrashAlt}
-                                        onClick={async () => {
-                                            await deleteTask(task);
-
-                                            populateTaskData();
-                                        }}
-                                        className="text-danger"
-                                    />
-                                </Button>
-
-                                <Button
-                                    color="link"
-                                    title="Move task up"
-                                    className="p-0"
-                                    disabled={task.orderIndex === 0}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faArrowAltCircleUp}
-                                        onClick={async () => {
-
-                                            await moveTaskUp(task);
-
-                                            populateTaskData();
-                                        }}
-                                        className="text-primary"
-                                    />
-                                </Button>
-
-                                <Button
-                                    color="link"
-                                    title="Move task down"
-                                    className="p-0"
-                                    disabled={task.orderIndex === tasks.length - 1}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faArrowAltCircleDown}
-                                        onClick={async () => {
-                                            await moveTaskDown(task);
-
-                                            populateTaskData();
-                                        }}
-                                        className="text-primary"
-                                    />
-                                </Button>
+                                {rowActions.map(action =>
+                                    <Button
+                                        color="link"
+                                        title={action.title}
+                                        className="p-0"
+                                        disabled={action.disabled?.(data)}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={action.icon}
+                                            onClick={() => action.onClick(data)}
+                                            className={`text-${action.color}`}
+                                        />
+                                    </Button>
+                                )}
                             </div>
                         </td>
                     </tr>

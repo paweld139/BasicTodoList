@@ -6,14 +6,12 @@ import {
 } from 'react';
 
 import {
-    Table,
     Container,
     Row,
     Input,
     Col,
     Label,
-    FormGroup,
-    Button
+    FormGroup
 } from 'reactstrap';
 
 import { Task } from './interfaces';
@@ -38,7 +36,10 @@ import {
     faChevronUp,
     faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
+
 import AppAccordion from './components/AppAccordion';
+
+import AppTable from './components/AppTable';
 
 function App() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -88,7 +89,7 @@ function App() {
         }));
     }, [sortField, sortOrder, tasks]);
 
-    const getPostfix = useCallback((field: string) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
+    const getPostfix = useCallback((field: keyof Task) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
 
     const filteredTasks = useMemo(() => {
         return tasks?.filter(task =>
@@ -112,159 +113,103 @@ function App() {
 
     const getTable = useCallback(() => {
         return (
-            <Table
-                bordered
-                dark
-                hover
-                responsive
-                striped
-            >
-                <thead>
-                    <tr>
-                        <th onClick={() => sortTasks('title')}>Title {getPostfix('title')}</th>
-                        <th onClick={() => sortTasks('dueDate')}>Due date {getPostfix('dueDate')}</th>
-                        <th onClick={() => sortTasks('isCompleted')} className="text-center">Completed {getPostfix('isCompleted')}</th>
-                        <th className="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredTasks?.map(task =>
-                        <tr
-                            key={task.id}
-                        >
-                            <td
-                                onClick={() => {
-                                    task.isEditingTitle = true;
+            <AppTable
+                columns={[
+                    {
+                        label: 'Title',
+                        key: 'title',
+                        onClick: (data) => {
+                            data.isEditingTitle = true;
 
-                                    setTasks([...tasks]);
-                                }}
-                            >
-                                {!task.isEditingTitle ? task.title : (
-                                    <Input
-                                        type="text"
-                                        onChange={(event) => {
-                                            task.title = event.target.value;
+                            setTasks([...tasks]);
+                        },
+                        type: 'text',
+                        canEdit: t => t.isEditingTitle,
+                        onChange: (event, data) => {
+                            data.title = event.target.value;
 
-                                            setTasks([...tasks]);
-                                        }}
-                                        value={task.title}
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter') {
-                                                (event.target as HTMLInputElement).blur()
-                                            }
-                                        }}
-                                        onBlur={async () => {
-                                            await updateTaskTitle(task);
+                            setTasks([...tasks]);
+                        },
+                        onBlur: async (data) => {
+                            await updateTaskTitle(data);
 
-                                            populateTaskData();
-                                        }}
-                                        autoFocus
-                                    />
-                                )}
-                            </td>
-                            <td
-                                onClick={() => {
-                                    task.isEditingDueDate = true;
+                            populateTaskData();
+                        }
+                    },
+                    {
+                        label: 'Due date',
+                        key: 'dueDate',
+                        onClick: (data) => {
+                            data.isEditingDueDate = true;
 
-                                    setTasks([...tasks]);
-                                }}
-                                style={{ width: '14rem' }}
-                            >
-                                {!task.isEditingDueDate ? task.dueDate ? new Date(task.dueDate).toLocaleString() : null : (
-                                    <Input
-                                        type="datetime-local"
-                                        onChange={(event) => {
-                                            task.dueDate = event.target.value;
+                            setTasks([...tasks]);
+                        },
+                        type: 'datetime-local',
+                        canEdit: t => t.isEditingDueDate,
+                        onChange: (event, data) => {
+                            data.dueDate = event.target.value;
 
-                                            setTasks([...tasks]);
-                                        }}
-                                        value={task.dueDate ?? ''}
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter') {
-                                                (event.target as HTMLInputElement).blur()
-                                            }
-                                        }}
-                                        onBlur={async () => {
-                                            await updateTaskDueDate(task);
+                            setTasks([...tasks]);
+                        },
+                        onBlur: async (data) => {
+                            await updateTaskDueDate(data);
 
-                                            populateTaskData();
-                                        }}
-                                        autoFocus
-                                    />
-                                )}
-                            </td>
-                            <td
-                                style={{ width: '8rem' }}
-                                className="text-center"
-                            >
-                                <Input
-                                    type="checkbox"
-                                    checked={task.isCompleted}
-                                    onChange={async () => {
-                                        await toggleTaskIsCompleted(task);
+                            populateTaskData();
+                        },
+                        width: '14rem'
+                    },
+                    {
+                        label: 'Completed',
+                        key: 'isCompleted',
+                        centered: true,
+                        type: 'checkbox',
+                        canEdit: () => true,
+                        onChange: async (_event, data) => {
+                            await toggleTaskIsCompleted(data);
 
-                                        populateTaskData();
-                                    }}
-                                />
-                            </td>
-                            <td style={{ width: '5rem' }}>
-                                <div className="d-flex gap-2">
-                                    <Button
-                                        color="link"
-                                        title="Delete task"
-                                        className="p-0"
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faTrashAlt}
-                                            onClick={async () => {
-                                                await deleteTask(task);
+                            populateTaskData();
+                        },
+                        width: '8rem'
+                    }
+                ]}
+                sort={sortTasks}
+                getPostfix={getPostfix}
+                filteredData={filteredTasks}
+                rowActions={[
+                    {
+                        title: 'Delete task',
+                        onClick: async (data) => {
+                            await deleteTask(data);
 
-                                                populateTaskData();
-                                            }}
-                                            className="text-danger"
-                                        />
-                                    </Button>
+                            populateTaskData();
+                        },
+                        icon: faTrashAlt,
+                        color: 'danger'
+                    },
+                    {
+                        title: 'Move task up',
+                        onClick: async (data) => {
+                            await moveTaskUp(data);
 
-                                    <Button
-                                        color="link"
-                                        title="Move task up"
-                                        className="p-0"
-                                        disabled={task.orderIndex === 0}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faArrowAltCircleUp}
-                                            onClick={async () => {
+                            populateTaskData();
+                        },
+                        icon: faArrowAltCircleUp,
+                        color: 'primary',
+                        disabled: (data) => data.orderIndex === 0
+                    },
+                    {
+                        title: 'Move task down',
+                        onClick: async (data) => {
+                            await moveTaskDown(data);
 
-                                                await moveTaskUp(task);
-
-                                                populateTaskData();
-                                            }}
-                                            className="text-primary"
-                                        />
-                                    </Button>
-
-                                    <Button
-                                        color="link"
-                                        title="Move task down"
-                                        className="p-0"
-                                        disabled={task.orderIndex === tasks.length - 1}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faArrowAltCircleDown}
-                                            onClick={async () => {
-                                                await moveTaskDown(task);
-
-                                                populateTaskData();
-                                            }}
-                                            className="text-primary"
-                                        />
-                                    </Button>
-                                </div>
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </Table>);
+                            populateTaskData();
+                        },
+                        icon: faArrowAltCircleDown,
+                        color: 'primary',
+                        disabled: (data) => data.orderIndex === tasks.length - 1
+                    }
+                ]}
+            />);
     }, [filteredTasks, getPostfix, populateTaskData, sortTasks, tasks]);
 
     const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
