@@ -17,26 +17,70 @@ import {
     faChevronUp
 } from "@fortawesome/free-solid-svg-icons";
 
-import { useCallback } from "react";
+import {
+    useCallback,
+    useState
+} from "react";
 
 interface Props<T extends Entity> {
     columns: TableColumn<T>[];
-    sort: (key: keyof T) => void;
     filteredData: T[];
     rowActions: TableRowAction<T>[];
-    sortOrder: 'asc' | 'desc' | null;
-    sortField: keyof T | null;
+    data: T[];
+    setData: (data: T[]) => void;
+    defaultSort: (a: T, b: T) => number;
+    keyProp: keyof T;
 }
 
 const AppTable = <T extends Entity>({
     columns,
-    sort,
     filteredData,
     rowActions,
-    sortOrder,
-    sortField
+    data,
+    setData,
+    defaultSort,
+    keyProp
 }: Props<T>) => {
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+
+    const [sortField, setSortField] = useState<keyof T | null>(null);
+
     const getPostfix = useCallback((field: keyof T) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
+
+    const sort = useCallback((field: keyof T) => {
+        const sortOrderToSet = sortOrder === null || field !== sortField ? 'asc' : sortOrder === 'asc' ? 'desc' : null;
+
+        setSortOrder(sortOrderToSet);
+
+        if (sortOrderToSet === null) {
+            setData([...data].sort(defaultSort));
+
+            return;
+        }
+        else {
+            setSortField(field);
+        }
+
+        setData([...data].sort((a, b) => {
+            if (a[field] === b[field]) {
+                return 0;
+            }
+
+            if (a[field] === null) {
+                return 1;
+            }
+
+            if (b[field] === null) {
+                return -1;
+            }
+
+            if (sortOrderToSet === 'asc') {
+                return a[field]! > b[field]! ? 1 : -1;
+            } else {
+                return a[field]! < b[field]! ? 1 : -1;
+            }
+        }));
+    }, [data, defaultSort, setData, sortField, sortOrder]);
 
     return (
         <Table
@@ -63,7 +107,7 @@ const AppTable = <T extends Entity>({
             <tbody>
                 {filteredData?.map(data =>
                     <tr
-                        key={data.id}
+                        key={String(data[keyProp])}
                     >
                         {columns.map(column =>
                             <td

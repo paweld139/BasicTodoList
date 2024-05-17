@@ -46,45 +46,6 @@ function App() {
 
     const [dueDateTo, setDueDateTo] = useState<string>();
 
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
-
-    const [sortField, setSortField] = useState<keyof Task | null>(null);
-
-    const sortTasks = useCallback((field: keyof Task) => {
-        const sortOrderToSet = sortOrder === null || field !== sortField ? 'asc' : sortOrder === 'asc' ? 'desc' : null;
-
-        setSortOrder(sortOrderToSet);
-
-        if (sortOrderToSet === null) {
-            setTasks([...tasks].sort((a, b) => a.orderIndex - b.orderIndex));
-
-            return;
-        }
-        else {
-            setSortField(field);
-        }
-
-        setTasks([...tasks].sort((a, b) => {
-            if (a[field] === b[field]) {
-                return 0;
-            }
-
-            if (a[field] === null) {
-                return 1;
-            }
-
-            if (b[field] === null) {
-                return -1;
-            }
-
-            if (sortOrderToSet === 'asc') {
-                return a[field]! > b[field]! ? 1 : -1;
-            } else {
-                return a[field]! < b[field]! ? 1 : -1;
-            }
-        }));
-    }, [sortField, sortOrder, tasks]);
-
     const filteredTasks = useMemo(() => {
         return tasks?.filter(task =>
             task.title.toLowerCase().includes(titleSearch.toLowerCase()) &&
@@ -166,7 +127,6 @@ function App() {
                         width: '8rem'
                     }
                 ]}
-                sort={sortTasks}
                 filteredData={filteredTasks}
                 rowActions={[
                     {
@@ -202,10 +162,12 @@ function App() {
                         disabled: (data) => data.orderIndex === tasks.length - 1
                     }
                 ]}
-                sortOrder={sortOrder}
-                sortField={sortField}
+                data={tasks}
+                setData={setTasks}
+                defaultSort={(a, b) => a.orderIndex - b.orderIndex}
+                keyProp="orderIndex"
             />);
-    }, [filteredTasks, populateTaskData, sortField, sortOrder, sortTasks, tasks]);
+    }, [filteredTasks, populateTaskData, tasks]);
 
     const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
 

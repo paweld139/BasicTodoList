@@ -2,7 +2,6 @@ import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { ReactNode } from "react";
 
 export interface Entity {
-    id: number;
     [key: string]: ReactNode;
 }
 
