@@ -9,12 +9,10 @@ import {
     Container,
     Row,
     Input,
-    Col,
-    Label,
-    FormGroup
+    Col
 } from 'reactstrap';
 
-import { Task } from './interfaces';
+import { Task, TaskFilter } from './interfaces';
 
 import {
     addTask,
@@ -37,22 +35,24 @@ import AppAccordion from './components/AppAccordion';
 
 import AppTable from './components/AppTable';
 
+import AppForm from './components/AppForm';
+
 function App() {
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    const [titleSearch, setTitleSearch] = useState('');
-
-    const [dueDateFrom, setDueDateFrom] = useState<string>();
-
-    const [dueDateTo, setDueDateTo] = useState<string>();
+    const [filter, setFilter] = useState<TaskFilter>({
+        title: '',
+        dueDateFrom: '',
+        dueDateTo: ''
+    });
 
     const filteredTasks = useMemo(() => {
         return tasks?.filter(task =>
-            task.title.toLowerCase().includes(titleSearch.toLowerCase()) &&
-            (!dueDateFrom || new Date(task.dueDate!) >= new Date(dueDateFrom)) &&
-            (!dueDateTo || new Date(task.dueDate!) <= new Date(dueDateTo))
+            task.title.toLowerCase().includes(filter.title.toLowerCase()) &&
+            (!filter.dueDateFrom || new Date(task.dueDate!) >= new Date(filter.dueDateFrom)) &&
+            (!filter.dueDateTo || new Date(task.dueDate!) <= new Date(filter.dueDateTo))
         );
-    }, [dueDateFrom, dueDateTo, tasks, titleSearch]);
+    }, [filter.dueDateFrom, filter.dueDateTo, filter.title, tasks]);
 
     const [title, setTitle] = useState('');
 
@@ -111,7 +111,8 @@ function App() {
 
                             populateTaskData();
                         },
-                        width: '14rem'
+                        width: '14rem',
+                        mutator: (value) => value ? new Date(String(value)).toLocaleString() : null
                     },
                     {
                         label: 'Completed',
@@ -210,39 +211,28 @@ function App() {
 
             <Row className="mb-2">
                 <AppAccordion header="Filters">
-                    <Container fluid>
-                        <Row md="3" sm="2" xs="1">
-                            <FormGroup>
-                                <Label for="title">Title</Label>
-                                <Input
-                                    type="search"
-                                    onChange={(event) => setTitleSearch(event.target.value)}
-                                    value={titleSearch}
-                                    id="title"
-                                />
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label for="dueDateFrom">Due date from</Label>
-                                <Input
-                                    type="datetime-local"
-                                    onChange={(event) => setDueDateFrom(event.target.value)}
-                                    value={dueDateFrom}
-                                    id="dueDateFrom"
-                                />
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label for="dueDateTo">Due date to</Label>
-                                <Input
-                                    type="datetime-local"
-                                    onChange={(event) => setDueDateTo(event.target.value)}
-                                    value={dueDateTo}
-                                    id="dueDateTo"
-                                />
-                            </FormGroup>
-                        </Row>
-                    </Container>
+                    <AppForm
+                        data={filter}
+                        setData={setFilter}
+                        inputs={[
+                            {
+                                key: 'title',
+                                label: 'Title',
+                                type: 'search'
+                            },
+                            {
+                                key: 'dueDateFrom',
+                                label: 'Due date from',
+                                type: 'datetime-local'
+                            },
+                            {
+                                key: 'dueDateTo',
+                                label: 'Due date to',
+                                type: 'datetime-local'
+                            }
+                        ]}
+                        rowProps={[{ md: 3, sm: 2, xs: 1 }]}
+                    />
                 </AppAccordion>
             </Row>
 

@@ -14,6 +14,12 @@ export interface Task extends Entity {
     isEditingDueDate: boolean;
 }
 
+export interface TaskFilter {
+    title: string;
+    dueDateFrom: string;
+    dueDateTo: string;
+}
+
 export interface TableColumn<T extends Entity> {
     label: string;
     key: keyof T;
@@ -24,6 +30,7 @@ export interface TableColumn<T extends Entity> {
     onChange: (event: React.ChangeEvent<HTMLInputElement>, data: T) => void;
     onBlur?: (data: T) => void;
     width?: string;
+    mutator?: (value: ReactNode) => ReactNode;
 }
 
 export interface TableRowAction<T extends Entity> {
@@ -32,4 +39,11 @@ export interface TableRowAction<T extends Entity> {
     icon: IconDefinition;
     disabled?: (data: T) => boolean;
     color: string;
+}
+
+export interface FormInput<T> {
+    key: keyof T;
+    label: string;
+    type: 'search' | 'datetime-local';
+    group?: number
 }

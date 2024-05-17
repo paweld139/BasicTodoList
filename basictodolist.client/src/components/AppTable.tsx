@@ -115,7 +115,7 @@ const AppTable = <T extends Entity>({
                                 style={{ width: column.width }}
                                 className={column.centered ? 'text-center' : ''}
                             >
-                                {!column.canEdit(data) ? data[column.key] : (
+                                {!column.canEdit(data) ? column.mutator ? column.mutator(data[column.key]) : data[column.key] : (
                                     <Input
                                         type={column.type}
                                         checked={column.type === 'checkbox' ? Boolean(data[column.key]) : undefined}
