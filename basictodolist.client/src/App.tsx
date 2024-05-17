@@ -27,14 +27,10 @@ import {
     moveTaskDown
 } from './requests';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import {
     faTrashAlt,
     faArrowAltCircleUp,
-    faArrowAltCircleDown,
-    faChevronUp,
-    faChevronDown
+    faArrowAltCircleDown
 } from '@fortawesome/free-solid-svg-icons';
 
 import AppAccordion from './components/AppAccordion';
@@ -88,8 +84,6 @@ function App() {
             }
         }));
     }, [sortField, sortOrder, tasks]);
-
-    const getPostfix = useCallback((field: keyof Task) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
 
     const filteredTasks = useMemo(() => {
         return tasks?.filter(task =>
@@ -173,7 +167,6 @@ function App() {
                     }
                 ]}
                 sort={sortTasks}
-                getPostfix={getPostfix}
                 filteredData={filteredTasks}
                 rowActions={[
                     {
@@ -209,8 +202,10 @@ function App() {
                         disabled: (data) => data.orderIndex === tasks.length - 1
                     }
                 ]}
+                sortOrder={sortOrder}
+                sortField={sortField}
             />);
-    }, [filteredTasks, getPostfix, populateTaskData, sortTasks, tasks]);
+    }, [filteredTasks, populateTaskData, sortField, sortOrder, sortTasks, tasks]);
 
     const getLoading = useCallback(() => <p><em>Loading...</em></p>, []);
 

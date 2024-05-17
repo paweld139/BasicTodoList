@@ -12,21 +12,32 @@ import {
     TableRowAction
 } from "../interfaces";
 
+import {
+    faChevronDown,
+    faChevronUp
+} from "@fortawesome/free-solid-svg-icons";
+
+import { useCallback } from "react";
+
 interface Props<T extends Entity> {
     columns: TableColumn<T>[];
     sort: (key: keyof T) => void;
-    getPostfix: (key: keyof T) => JSX.Element | null;
     filteredData: T[];
     rowActions: TableRowAction<T>[];
+    sortOrder: 'asc' | 'desc' | null;
+    sortField: keyof T | null;
 }
 
 const AppTable = <T extends Entity>({
     columns,
     sort,
-    getPostfix,
     filteredData,
-    rowActions
+    rowActions,
+    sortOrder,
+    sortField
 }: Props<T>) => {
+    const getPostfix = useCallback((field: keyof T) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
+
     return (
         <Table
             bordered
