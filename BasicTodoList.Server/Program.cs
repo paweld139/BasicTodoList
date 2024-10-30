@@ -127,7 +127,7 @@ namespace BasicTodoList.Server
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<BasicTodoListContext>(o => o.UseSqlServer(connectionString, o => o.MigrationsAssembly("BasicTodoList.DAL")));
+            services.AddNpgsql<BasicTodoListContext>(connectionString);
 
             var isDevelopment = webHostEnvironment.IsDevelopment();
 
