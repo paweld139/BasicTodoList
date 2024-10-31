@@ -18,6 +18,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
+    IconProp
+} from '@fortawesome/fontawesome-svg-core';
+
+import {
     useCallback,
     useState
 } from "react";
@@ -45,7 +49,7 @@ const AppTable = <T extends Entity>({
 
     const [sortField, setSortField] = useState<keyof T | null>(null);
 
-    const getPostfix = useCallback((field: keyof T) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown} /> : null : null, [sortField, sortOrder]);
+    const getPostfix = useCallback((field: keyof T) => field === sortField ? sortOrder === 'asc' ? <FontAwesomeIcon icon={faChevronUp as IconProp} /> : sortOrder === 'desc' ? <FontAwesomeIcon icon={faChevronDown as IconProp} /> : null : null, [sortField, sortOrder]);
 
     const sort = useCallback((field: keyof T) => {
         const sortOrderToSet = sortOrder === null || field !== sortField ? 'asc' : sortOrder === 'asc' ? 'desc' : null;
@@ -142,7 +146,7 @@ const AppTable = <T extends Entity>({
                                         disabled={action.disabled?.(data)}
                                     >
                                         <FontAwesomeIcon
-                                            icon={action.icon}
+                                            icon={action.icon as IconProp}
                                             onClick={() => action.onClick(data)}
                                             className={`text-${action.color}`}
                                         />
