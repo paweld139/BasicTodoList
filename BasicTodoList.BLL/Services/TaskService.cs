@@ -57,10 +57,14 @@ namespace BasicTodoList.BLL.Services
         {
             task.UserId = UserId;
 
-            task.OrderIndex = await basicTodoListContext.Tasks
+            var query = basicTodoListContext.Tasks
                 .Where(t => t.UserId == UserId)
-                .Select(t => t.OrderIndex)
-                .MaxAsync() + 1;
+                .Select(t => t.OrderIndex);
+
+            var exists = await query.AnyAsync();
+
+            if (exists)
+                task.OrderIndex = await query.MaxAsync() + 1;
 
             basicTodoListContext.Tasks.Add(task);
 
