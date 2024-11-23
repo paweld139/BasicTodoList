@@ -26,6 +26,8 @@ import {
     useState
 } from "react";
 
+import moment from "moment";
+
 interface Props<T extends Entity> {
     columns: TableColumn<T>[];
     filteredData: T[];
@@ -124,7 +126,7 @@ const AppTable = <T extends Entity>({
                                         type={column.type}
                                         checked={column.type === 'checkbox' ? Boolean(data[column.key]) : undefined}
                                         onChange={e => column.onChange(e, data)}
-                                        value={column.type === 'checkbox' ? undefined : String(data[column.key])}
+                                        value={column.type === 'checkbox' ? undefined : column.type === 'datetime-local' ? moment(String(data[column.key])).format('yyyy-MM-DDTHH:mm') : String(data[column.key])}
                                         onKeyDown={!column.onBlur ? undefined : (event) => {
                                             if (event.key === 'Enter') {
                                                 column.onBlur!(data);

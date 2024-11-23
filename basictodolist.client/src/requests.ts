@@ -24,7 +24,7 @@ export const updateTaskTitle = (task: Task) =>
 export const updateTaskDueDate = (task: Task) =>
     updateTask({
         ...task,
-        dueDate: task.dueDate ? task.dueDate : null
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null
     });
 
 export const moveTaskUp = (task: Task) =>
